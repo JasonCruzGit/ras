@@ -54,6 +54,11 @@ npm install
 npm run dev
 ```
 
+## Vercel notes (React Router)
+
+This project uses client-side routing. For Vercel, `vercel.json` includes a rewrite so routes like
+`/documents/new` work on refresh/direct navigation.
+
 ## Next steps
 
 - Build full document CRUD + file upload to Storage
