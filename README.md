@@ -30,6 +30,7 @@ In Supabase SQL Editor, run:
 4. `supabase/views.sql`
 5. (optional) `supabase/profile_trigger.sql`
 6. `supabase/hardcopy_qr_upload.sql` (QR photo proof upload)
+7. `supabase/profile_email.sql` (show emails in user lists)
 
 If you created documents before enabling initial forwarding, also run:
 - `supabase/fix_creator_initial_holder.sql`

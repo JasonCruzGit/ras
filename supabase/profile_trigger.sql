@@ -8,8 +8,8 @@ language plpgsql
 security definer
 as $$
 begin
-  insert into public.profiles(user_id, display_name, role)
-  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', null), 'staff')
+  insert into public.profiles(user_id, display_name, email, role)
+  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', null), new.email, 'staff')
   on conflict (user_id) do nothing;
   return new;
 end;

@@ -146,7 +146,7 @@ export function InboxPage() {
                     <option value="">(none)</option>
                     {(profiles.data ?? []).map((p) => (
                       <option key={p.user_id} value={p.user_id}>
-                        {p.display_name ?? p.user_id}
+                        {p.email ?? p.display_name ?? p.user_id}
                       </option>
                     ))}
                   </select>

@@ -32,6 +32,7 @@ create table if not exists public.departments (
 create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   display_name text,
+  email text,
   role text not null default 'staff' check (role in ('admin', 'staff')),
   department_id uuid references public.departments(id),
   created_at timestamptz not null default now(),

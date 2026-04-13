@@ -51,7 +51,7 @@ export function DocumentDetailPage() {
     return list
       .map((p) => ({
         id: p.user_id,
-        label: `${p.display_name ?? p.user_id}${p.role === 'admin' ? ' (admin)' : ''}`,
+        label: `${p.email ?? p.display_name ?? p.user_id}${p.role === 'admin' ? ' (admin)' : ''}`,
       }))
       .sort((a, b) => a.label.localeCompare(b.label))
   }, [profiles.data])

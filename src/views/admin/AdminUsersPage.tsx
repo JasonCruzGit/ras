@@ -44,7 +44,7 @@ export function AdminUsersPage() {
             <table className="min-w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs font-medium text-slate-600">
                 <tr>
-                  <th className="px-4 py-2">User ID</th>
+                  <th className="px-4 py-2">Email</th>
                   <th className="px-4 py-2">Display name</th>
                   <th className="px-4 py-2">Role</th>
                   <th className="px-4 py-2">Department</th>
@@ -53,7 +53,7 @@ export function AdminUsersPage() {
               <tbody className="divide-y divide-slate-100">
                 {list.map((u) => (
                   <tr key={u.user_id}>
-                    <td className="px-4 py-2 font-mono text-xs text-slate-700">{u.user_id}</td>
+                    <td className="px-4 py-2 text-xs text-slate-700">{u.email ?? '—'}</td>
                     <td className="px-4 py-2">
                       <input
                         className="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
