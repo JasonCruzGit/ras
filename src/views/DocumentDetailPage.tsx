@@ -35,6 +35,7 @@ export function DocumentDetailPage() {
   const [remarks, setRemarks] = useState('')
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [qrLink, setQrLink] = useState<string | null>(null)
+  const [qrError, setQrError] = useState<string | null>(null)
 
   const canAct = !!(
     user?.id &&
@@ -76,6 +77,22 @@ export function DocumentDetailPage() {
         qc.invalidateQueries({ queryKey: ['inbox'] }),
       ])
     },
+  })
+
+  const genQr = useMutation({
+    mutationFn: async () => {
+      if (!id) throw new Error('Missing document id')
+      const s = await createHardcopySession(id)
+      const link = `${window.location.origin}/hardcopy-upload/${s.token}`
+      const dataUrl = await QRCode.toDataURL(link, { margin: 1, width: 220 })
+      return { link, dataUrl }
+    },
+    onSuccess: ({ link, dataUrl }) => {
+      setQrError(null)
+      setQrLink(link)
+      setQrDataUrl(dataUrl)
+    },
+    onError: (e) => setQrError((e as Error).message),
   })
 
   return (
@@ -211,17 +228,14 @@ export function DocumentDetailPage() {
                   <button
                     className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-60"
                     type="button"
-                    disabled={!id}
-                    onClick={async () => {
-                      if (!id) return
-                      const s = await createHardcopySession(id)
-                      const link = `${window.location.origin}/hardcopy-upload/${s.token}`
-                      const dataUrl = await QRCode.toDataURL(link, { margin: 1, width: 220 })
-                      setQrLink(link)
-                      setQrDataUrl(dataUrl)
+                    disabled={!id || genQr.isPending}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setQrError(null)
+                      genQr.mutate()
                     }}
                   >
-                    Generate QR (hardcopy proof upload)
+                    {genQr.isPending ? 'Generating…' : 'Generate QR (hardcopy proof upload)'}
                   </button>
 
                   {qrDataUrl ? (
@@ -237,6 +251,12 @@ export function DocumentDetailPage() {
                       {qrLink ? (
                         <div className="mt-2 break-all text-xs text-slate-600">{qrLink}</div>
                       ) : null}
+                    </div>
+                  ) : null}
+
+                  {qrError ? (
+                    <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                      {qrError}
                     </div>
                   ) : null}
 
