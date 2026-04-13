@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getDocument } from '../api/documents'
 import { getTimeline } from '../api/timeline'
@@ -212,12 +212,12 @@ export function DocumentDetailPage() {
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="text-sm font-medium text-slate-900">Routing history</div>
-              <a
+              <Link
                 className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
-                href={`/documents/${q.data.id}/action-slip`}
+                to={`/print/documents/${q.data.id}`}
               >
                 Action slip (print)
-              </a>
+              </Link>
             </div>
             {timeline.isLoading ? (
               <div className="mt-3 text-sm text-slate-600">Loading timeline…</div>

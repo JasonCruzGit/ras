@@ -202,7 +202,7 @@ export function NewDocumentPage() {
             className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50"
             type="button"
             onClick={() => {
-              nav('/documents/new/preview', {
+              nav('/print/new', {
                 state: {
                   originatingOffice,
                   referenceNumber,

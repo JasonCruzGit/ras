@@ -19,6 +19,22 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
+    path: '/print/new',
+    element: (
+      <RequireAuth>
+        <ActionSlipPreviewPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/print/documents/:id',
+    element: (
+      <RequireAuth>
+        <ActionSlipPage />
+      </RequireAuth>
+    ),
+  },
+  {
     path: '/',
     element: (
       <RequireAuth>
@@ -30,9 +46,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'documents', element: <DocumentsPage /> },
       { path: 'documents/new', element: <NewDocumentPage /> },
-      { path: 'documents/new/preview', element: <ActionSlipPreviewPage /> },
       { path: 'documents/:id', element: <DocumentDetailPage /> },
-      { path: 'documents/:id/action-slip', element: <ActionSlipPage /> },
       { path: 'inbox', element: <InboxPage /> },
       {
         path: 'admin/departments',
