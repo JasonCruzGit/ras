@@ -11,7 +11,6 @@ import { createHardcopySession } from '../api/hardcopyProof'
 import QRCode from 'qrcode'
 import { createSignedAttachmentUrl, listAttachments, listHardcopyProofs } from '../api/attachments'
 import { supabase } from '../lib/supabase'
-import { ActionSlipTemplate } from '../ui/ActionSlipTemplate'
 
 export function DocumentDetailPage() {
   const { id } = useParams()
@@ -169,29 +168,55 @@ export function DocumentDetailPage() {
                 </span>
               </div>
             </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                to={`/print/documents/${q.data.id}`}
+                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50"
+              >
+                Open preview
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
             <div className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-medium text-slate-900">Document preview</div>
-                <Link
-                  to={`/print/documents/${q.data.id}`}
-                  className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
-                >
-                  Open preview
-                </Link>
-              </div>
-              <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                <div className="p-3 bg-white">
-                  <div className="origin-top-left scale-[0.48] pointer-events-none" style={{ width: '208%' }}>
-                    <ActionSlipTemplate doc={q.data} routes={timeline.data?.routes ?? []} />
-                  </div>
+              <div className="text-sm font-medium text-slate-900">Document info</div>
+              <dl className="mt-3 grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
+                <div>
+                  <dt className="text-xs text-slate-500">Originating office</dt>
+                  <dd className="text-slate-900">{q.data.originating_office}</dd>
                 </div>
-              </div>
-              <div className="mt-2 text-xs text-slate-500">
-                This is a scaled preview of the printable routing action slip.
-              </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Reference number</dt>
+                  <dd className="font-mono text-xs text-slate-900">{q.data.reference_number ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Date of document</dt>
+                  <dd className="text-slate-900">{q.data.date_of_document ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Date & time received</dt>
+                  <dd className="text-slate-900">
+                    {q.data.date_time_received
+                      ? new Date(q.data.date_time_received).toLocaleString()
+                      : '—'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Priority</dt>
+                  <dd className="text-slate-900">{q.data.priority}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Status</dt>
+                  <dd className="text-slate-900">{q.data.status}</dd>
+                </div>
+                <div className="md:col-span-2">
+                  <dt className="text-xs text-slate-500">Description</dt>
+                  <dd className="whitespace-pre-wrap text-slate-900">
+                    {q.data.description ?? '—'}
+                  </dd>
+                </div>
+              </dl>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-4">

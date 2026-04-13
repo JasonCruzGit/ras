@@ -103,6 +103,7 @@ export function DocumentsPage() {
                   <th className="px-4 py-2">Priority</th>
                   <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Created</th>
+                  <th className="px-4 py-2"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -122,11 +123,19 @@ export function DocumentsPage() {
                     <td className="px-4 py-2 text-slate-600">
                       {new Date(d.created_at).toLocaleString()}
                     </td>
+                    <td className="px-4 py-2 text-right">
+                      <Link
+                        to={`/print/documents/${d.id}`}
+                        className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50"
+                      >
+                        Preview
+                      </Link>
+                    </td>
                   </tr>
                 ))}
                 {filtered.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-6 text-sm text-slate-600" colSpan={6}>
+                    <td className="px-4 py-6 text-sm text-slate-600" colSpan={7}>
                       No matching documents.
                     </td>
                   </tr>
