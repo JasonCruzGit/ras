@@ -134,15 +134,18 @@ drop policy if exists routes_read_via_document on public.document_routes;
 create policy routes_read_via_document on public.document_routes
 for select to authenticated
 using (
-  exists (
+  -- IMPORTANT: do not reference `documents` here, otherwise `documents` policies that
+  -- reference `document_routes` can recurse and cause 42P17 infinite recursion.
+  public.is_admin()
+  or document_routes.to_user_id = auth.uid()
+  or document_routes.from_user_id = auth.uid()
+  or exists (
     select 1
-    from public.documents d
-    where d.id = document_routes.document_id
+    from public.profiles me
+    where me.user_id = auth.uid()
       and (
-        public.is_admin()
-        or d.created_by = auth.uid()
-        or document_routes.to_user_id = auth.uid()
-        or document_routes.from_user_id = auth.uid()
+        (document_routes.to_department_id is not null and document_routes.to_department_id = me.department_id)
+        or (document_routes.from_department_id is not null and document_routes.from_department_id = me.department_id)
       )
   )
 );
