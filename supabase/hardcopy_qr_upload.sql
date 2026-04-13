@@ -137,7 +137,8 @@ $$;
 -- Storage policies: bucket must exist (recommended private)
 -- Allow anon to upload into document-attachments bucket under hardcopy/<token>/
 -- NOTE: Storage RLS is on storage.objects
-alter table storage.objects enable row level security;
+-- `storage.objects` is managed by Supabase; RLS is already enabled there.
+-- Do not run ALTER TABLE here (often fails with "must be owner of table objects").
 
 drop policy if exists hardcopy_upload_insert_anon on storage.objects;
 create policy hardcopy_upload_insert_anon on storage.objects
