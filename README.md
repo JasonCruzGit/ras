@@ -29,6 +29,7 @@ In Supabase SQL Editor, run:
 3. `supabase/routing_functions.sql`
 4. `supabase/views.sql`
 5. (optional) `supabase/profile_trigger.sql`
+6. `supabase/hardcopy_qr_upload.sql` (QR photo proof upload)
 
 Then create a Storage bucket named **`document-attachments`** (private recommended).
 

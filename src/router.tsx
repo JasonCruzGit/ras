@@ -12,6 +12,7 @@ import { AdminDepartmentsPage } from './views/admin/AdminDepartmentsPage'
 import { AdminUsersPage } from './views/admin/AdminUsersPage'
 import { ActionSlipPage } from './views/ActionSlipPage'
 import { ActionSlipPreviewPage } from './views/ActionSlipPreviewPage'
+import { HardcopyUploadPage } from './views/HardcopyUploadPage'
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
         <ActionSlipPage />
       </RequireAuth>
     ),
+  },
+  {
+    path: '/hardcopy-upload/:token',
+    element: <HardcopyUploadPage />,
   },
   {
     path: '/',

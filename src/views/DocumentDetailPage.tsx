@@ -7,6 +7,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { forwardDocument } from '../api/inbox'
 import { listDepartments, listProfiles } from '../api/directory'
 import { useMemo, useState } from 'react'
+import { createHardcopySession } from '../api/hardcopyProof'
+import QRCode from 'qrcode'
 
 export function DocumentDetailPage() {
   const { id } = useParams()
@@ -31,6 +33,8 @@ export function DocumentDetailPage() {
   const [forwardToDepartment, setForwardToDepartment] = useState<string>('')
   const [instruction, setInstruction] = useState('')
   const [remarks, setRemarks] = useState('')
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+  const [qrLink, setQrLink] = useState<string | null>(null)
 
   const canAct = !!(user?.id && q.data?.current_holder_user_id === user.id)
 
@@ -198,6 +202,38 @@ export function DocumentDetailPage() {
                   >
                     {forward.isPending ? 'Forwarding…' : 'Forward'}
                   </button>
+
+                  <button
+                    className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-60"
+                    type="button"
+                    disabled={!id}
+                    onClick={async () => {
+                      if (!id) return
+                      const s = await createHardcopySession(id)
+                      const link = `${window.location.origin}/hardcopy-upload/${s.token}`
+                      const dataUrl = await QRCode.toDataURL(link, { margin: 1, width: 220 })
+                      setQrLink(link)
+                      setQrDataUrl(dataUrl)
+                    }}
+                  >
+                    Generate QR (hardcopy proof upload)
+                  </button>
+
+                  {qrDataUrl ? (
+                    <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                        Scan on phone
+                      </div>
+                      <img
+                        src={qrDataUrl}
+                        alt="QR code"
+                        className="mt-2 h-[220px] w-[220px] bg-white p-2"
+                      />
+                      {qrLink ? (
+                        <div className="mt-2 break-all text-xs text-slate-600">{qrLink}</div>
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   {forward.isError ? (
                     <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
