@@ -3,10 +3,22 @@ import { Link, useParams } from 'react-router-dom'
 import { getDocument } from '../api/documents'
 import { getTimeline } from '../api/timeline'
 
+function displayPerson(name: string | null, dept: string | null) {
+  return name ?? dept ?? '—'
+}
+
 export function ActionSlipPage() {
   const { id } = useParams()
-  const doc = useQuery({ queryKey: ['documents', id], queryFn: () => getDocument(id!), enabled: !!id })
-  const timeline = useQuery({ queryKey: ['timeline', id], queryFn: () => getTimeline(id!), enabled: !!id })
+  const doc = useQuery({
+    queryKey: ['documents', id],
+    queryFn: () => getDocument(id!),
+    enabled: !!id,
+  })
+  const timeline = useQuery({
+    queryKey: ['timeline', id],
+    queryFn: () => getTimeline(id!),
+    enabled: !!id,
+  })
 
   return (
     <div className="space-y-4">
@@ -45,86 +57,156 @@ export function ActionSlipPage() {
           {(timeline.error as Error).message}
         </div>
       ) : doc.data ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 print:border-0 print:p-0">
-          <div className="text-center text-lg font-semibold text-slate-900">ROUTING ACTION SLIP</div>
+        <div className="mx-auto w-full max-w-[900px] print:max-w-none">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 print:rounded-none print:border-0 print:p-0">
+            <div className="border border-slate-900">
+              {/* Header */}
+              <div className="grid grid-cols-[110px_1fr] border-b border-slate-900">
+                <div className="flex items-center justify-center gap-2 border-r border-slate-900 p-2">
+                  <div className="h-10 w-10 rounded-full border border-slate-900 text-center text-[10px] leading-10">
+                    CAAP
+                  </div>
+                  <div className="h-10 w-10 rounded-full border border-slate-900 text-center text-[10px] leading-10">
+                    LOGO
+                  </div>
+                </div>
+                <div className="p-2 text-center text-xs">
+                  <div>Republic of the Philippines</div>
+                  <div className="text-sm font-semibold">CIVIL AVIATION AUTHORITY OF THE PHILIPPINES</div>
+                </div>
+              </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Originating Office
+              <div className="border-b border-slate-900 p-2 text-center text-sm font-semibold">
+                ROUTING ACTION SLIP
               </div>
-              <div className="mt-1 font-medium text-slate-900">{doc.data.originating_office}</div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Reference Number
-              </div>
-              <div className="mt-1 font-mono text-slate-900">{doc.data.reference_number ?? '—'}</div>
-            </div>
-            <div className="md:col-span-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Subject</div>
-              <div className="mt-1 font-medium text-slate-900">{doc.data.title}</div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Date of Document
-              </div>
-              <div className="mt-1 text-slate-900">{doc.data.date_of_document ?? '—'}</div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Date &amp; Time Received
-              </div>
-              <div className="mt-1 text-slate-900">
-                {doc.data.date_time_received ? new Date(doc.data.date_time_received).toLocaleString() : '—'}
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border border-slate-200 print:border-slate-400">
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs font-semibold text-slate-700 print:bg-white">
-                <tr>
-                  <th className="px-3 py-2">DATE &amp; TIME</th>
-                  <th className="px-3 py-2">FROM</th>
-                  <th className="px-3 py-2">TO</th>
-                  <th className="px-3 py-2">REMARKS / INSTRUCTION / ACTION REQUESTED</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 print:divide-slate-300">
-                {(timeline.data?.routes ?? []).map((r) => (
-                  <tr key={r.id}>
-                    <td className="px-3 py-2 align-top text-xs">
-                      {new Date(r.assigned_at).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 align-top">
-                      <div className="text-sm">
-                        {r.from_display_name ?? r.from_department_name ?? '—'}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 align-top">
-                      <div className="text-sm">{r.to_display_name ?? r.to_department_name ?? '—'}</div>
-                    </td>
-                    <td className="px-3 py-2 align-top">
-                      <div className="whitespace-pre-wrap text-sm text-slate-900">
-                        {r.initial_instruction ?? ''}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {(timeline.data?.routes ?? []).length === 0 ? (
-                  <tr>
-                    <td className="px-3 py-6 text-sm text-slate-600" colSpan={4}>
-                      No routing yet.
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
+              {/* Meta fields */}
+              <div className="grid grid-cols-[1fr_220px] border-b border-slate-900 text-xs">
+                <div className="grid grid-cols-[140px_1fr] border-r border-slate-900">
+                  <div className="border-r border-slate-900 p-2">Originating Office</div>
+                  <div className="p-2 font-medium">{doc.data.originating_office}</div>
+                </div>
+                <div className="grid grid-cols-[120px_1fr]">
+                  <div className="border-r border-slate-900 p-2">Reference Number:</div>
+                  <div className="p-2 font-medium">{doc.data.reference_number ?? ''}</div>
+                </div>
+              </div>
 
-          <div className="mt-6 text-xs text-slate-500">
-            Generated: {new Date().toLocaleString()}
+              <div className="grid grid-cols-[1fr_220px] border-b border-slate-900 text-xs">
+                <div className="grid grid-cols-[140px_1fr] border-r border-slate-900">
+                  <div className="border-r border-slate-900 p-2 font-semibold">Subject:</div>
+                  <div className="p-2 font-medium">{doc.data.title}</div>
+                </div>
+                <div className="grid grid-rows-2">
+                  <div className="grid grid-cols-[120px_1fr] border-b border-slate-900">
+                    <div className="border-r border-slate-900 p-2">Date of Document:</div>
+                    <div className="p-2 font-medium">{doc.data.date_of_document ?? ''}</div>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr]">
+                    <div className="border-r border-slate-900 p-2">Date &amp; Time Received:</div>
+                    <div className="p-2 font-medium">
+                      {doc.data.date_time_received
+                        ? new Date(doc.data.date_time_received).toLocaleString()
+                        : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Routing grid */}
+              <div className="text-[11px]">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="text-center font-semibold">
+                      <th className="w-[110px] border-r border-slate-900 border-b border-slate-900 p-1">
+                        DATE &amp;
+                        <br />
+                        TIME
+                      </th>
+                      <th className="w-[180px] border-r border-slate-900 border-b border-slate-900 p-1">
+                        FROM
+                        <div className="mt-1 border-t border-slate-900 pt-1 text-[10px] font-normal">
+                          Name and Position of
+                          <br />
+                          Official
+                        </div>
+                      </th>
+                      <th className="w-[180px] border-r border-slate-900 border-b border-slate-900 p-1">
+                        TO
+                        <div className="mt-1 border-t border-slate-900 pt-1 text-[10px] font-normal">
+                          Name and Position of
+                          <br />
+                          Official
+                        </div>
+                      </th>
+                      <th className="border-b border-slate-900 p-1">
+                        REMARKS / INSTRUCTION / ACTION REQUESTED
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const routes = timeline.data?.routes ?? []
+                      const totalRows = 14
+                      const rows = Array.from({ length: totalRows }).map((_, i) => routes[i] ?? null)
+
+                      return rows.map((r, i) => (
+                        <tr key={i} className="align-top">
+                          <td className="h-10 border-r border-slate-900 border-b border-slate-900 p-1">
+                            {r ? new Date(r.assigned_at).toLocaleString() : ''}
+                          </td>
+                          <td className="border-r border-slate-900 border-b border-slate-900 p-1">
+                            {r ? displayPerson(r.from_display_name, r.from_department_name) : ''}
+                          </td>
+                          <td className="border-r border-slate-900 border-b border-slate-900 p-1">
+                            {r ? displayPerson(r.to_display_name, r.to_department_name) : ''}
+                          </td>
+                          <td className="border-b border-slate-900 p-1">
+                            {i === 0 ? (
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
+                                  {[
+                                    'Approval / Signature',
+                                    'Comments / Recommendation',
+                                    'Request Appropriate Action',
+                                    'Reply Directly to writer',
+                                    'Rewrite / Redraft',
+                                  ].map((x) => (
+                                    <div key={x} className="flex items-start gap-2">
+                                      <span className="mt-[2px] inline-block h-3 w-3 border border-slate-900" />
+                                      <span className="leading-tight">{x}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="space-y-1">
+                                  {[
+                                    'Information / Notation',
+                                    'Endorsement',
+                                    'See me / Call me',
+                                    'File',
+                                    'Remarks',
+                                  ].map((x) => (
+                                    <div key={x} className="flex items-start gap-2">
+                                      <span className="mt-[2px] inline-block h-3 w-3 border border-slate-900" />
+                                      <span className="leading-tight">{x}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="col-span-2 mt-2 min-h-8 whitespace-pre-wrap border-t border-slate-900 pt-2">
+                                  {r?.initial_instruction ?? ''}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="min-h-8 whitespace-pre-wrap">{r?.initial_instruction ?? ''}</div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       ) : null}

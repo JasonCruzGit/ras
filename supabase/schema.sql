@@ -5,7 +5,8 @@
 begin;
 
 -- Extensions
-create extension if not exists pgcrypto;
+-- Supabase projects typically keep extensions in the `extensions` schema
+create extension if not exists pgcrypto with schema extensions;
 
 -- Enums
 do $$ begin
