@@ -48,7 +48,7 @@ using (
 
 -- RPC: create a session (authenticated)
 create or replace function public.create_hardcopy_upload_session(p_document_id uuid)
-returns table (token uuid, url text)
+returns table (upload_token uuid, url text)
 language plpgsql
 security definer
 as $$
@@ -62,12 +62,12 @@ begin
 
   insert into public.hardcopy_upload_sessions(document_id, created_by)
   values (p_document_id, auth.uid())
-  returning token into v_token;
+  returning hardcopy_upload_sessions.token into v_token;
 
   -- caller provides origin in the app; here we just return token
   v_origin := '';
   return query
-  select v_token as token, v_origin as url;
+  select v_token as upload_token, v_origin as url;
 end;
 $$;
 

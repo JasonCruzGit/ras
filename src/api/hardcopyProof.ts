@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { supabase } from '../lib/supabase'
 
 export const CreateSessionResponse = z.object({
-  token: z.string().uuid(),
+  upload_token: z.string().uuid(),
   url: z.string().optional(),
 })
 
@@ -14,7 +14,7 @@ export async function createHardcopySession(documentId: string) {
   // supabase returns array of rows for table returns
   const row = z.array(CreateSessionResponse).parse(data)[0]
   if (!row) throw new Error('Failed to create session')
-  return row
+  return { token: row.upload_token }
 }
 
 export const SessionRow = z.object({
