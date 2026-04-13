@@ -13,6 +13,21 @@ export function NewDocumentPage() {
   const [dateOfDocument, setDateOfDocument] = useState('')
   const [dateTimeReceived, setDateTimeReceived] = useState('')
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High' | 'Urgent'>('Medium')
+  const [fromText, setFromText] = useState('')
+  const [toText, setToText] = useState('')
+  const [actionRequested, setActionRequested] = useState<
+    | 'Approval / Signature'
+    | 'Comments / Recommendation'
+    | 'Request Appropriate Action'
+    | 'Reply Directly to writer'
+    | 'Rewrite / Redraft'
+    | 'Information / Notation'
+    | 'Endorsement'
+    | 'See me / Call me'
+    | 'File'
+    | 'Remarks'
+  >('Approval / Signature')
+  const [remarksText, setRemarksText] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const create = useMutation({
@@ -121,6 +136,61 @@ export function NewDocumentPage() {
           <input className="mt-1 w-full text-sm" type="file" />
         </label>
 
+        <div className="md:col-span-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div className="text-sm font-medium text-slate-900">Initial routing (for preview/print)</div>
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <label className="block">
+              <div className="text-xs font-medium text-slate-700">From</div>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                value={fromText}
+                onChange={(e) => setFromText(e.target.value)}
+                placeholder="Name and position of official"
+              />
+            </label>
+            <label className="block">
+              <div className="text-xs font-medium text-slate-700">To</div>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                value={toText}
+                onChange={(e) => setToText(e.target.value)}
+                placeholder="Name and position of official"
+              />
+            </label>
+            <label className="block">
+              <div className="text-xs font-medium text-slate-700">
+                Remarks / Instructions / Action Requested
+              </div>
+              <select
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                value={actionRequested}
+                onChange={(e) => setActionRequested(e.target.value as typeof actionRequested)}
+              >
+                <option value="Approval / Signature">Approval / Signature</option>
+                <option value="Comments / Recommendation">Comments / Recommendation</option>
+                <option value="Request Appropriate Action">Request Appropriate Action</option>
+                <option value="Reply Directly to writer">Reply Directly to writer</option>
+                <option value="Rewrite / Redraft">Rewrite / Redraft</option>
+                <option value="Information / Notation">Information / Notation</option>
+                <option value="Endorsement">Endorsement</option>
+                <option value="See me / Call me">See me / Call me</option>
+                <option value="File">File</option>
+                <option value="Remarks">Remarks</option>
+              </select>
+            </label>
+            <label className="block md:col-span-2">
+              <div className="text-xs font-medium text-slate-700">Remarks / Instructions (details)</div>
+              <textarea
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                rows={3}
+                value={remarksText}
+                onChange={(e) => setRemarksText(e.target.value)}
+                placeholder="Type the instruction/action details…"
+              />
+            </label>
+          </div>
+        </div>
+
         {error ? (
           <div className="md:col-span-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
@@ -141,6 +211,10 @@ export function NewDocumentPage() {
                   dateTimeReceived: dateTimeReceived
                     ? new Date(dateTimeReceived).toLocaleString()
                     : '',
+                  fromText,
+                  toText,
+                  actionRequested,
+                  remarksText,
                 },
               })
             }}

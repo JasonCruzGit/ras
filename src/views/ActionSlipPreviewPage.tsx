@@ -6,10 +6,28 @@ type PreviewState = {
   subject: string
   dateOfDocument: string
   dateTimeReceived: string
+  fromText?: string
+  toText?: string
+  actionRequested?:
+    | 'Approval / Signature'
+    | 'Comments / Recommendation'
+    | 'Request Appropriate Action'
+    | 'Reply Directly to writer'
+    | 'Rewrite / Redraft'
+    | 'Information / Notation'
+    | 'Endorsement'
+    | 'See me / Call me'
+    | 'File'
+    | 'Remarks'
+  remarksText?: string
 }
 
-function displayPerson(name: string) {
-  return name || ''
+function CheckBox(props: { checked: boolean }) {
+  return (
+    <span className="mt-[2px] inline-flex h-3 w-3 items-center justify-center border border-slate-900">
+      {props.checked ? <span className="h-1.5 w-1.5 bg-slate-900" /> : null}
+    </span>
+  )
 }
 
 export function ActionSlipPreviewPage() {
@@ -133,12 +151,14 @@ export function ActionSlipPreviewPage() {
                 <tbody>
                   {Array.from({ length: 14 }).map((_, i) => (
                     <tr key={i} className="align-top">
-                      <td className="h-10 border-r border-slate-900 border-b border-slate-900 p-1" />
-                      <td className="border-r border-slate-900 border-b border-slate-900 p-1">
-                        {displayPerson('')}
+                      <td className="h-10 border-r border-slate-900 border-b border-slate-900 p-1">
+                        {i === 0 ? new Date().toLocaleString() : ''}
                       </td>
                       <td className="border-r border-slate-900 border-b border-slate-900 p-1">
-                        {displayPerson('')}
+                        {i === 0 ? (state.fromText ?? '') : ''}
+                      </td>
+                      <td className="border-r border-slate-900 border-b border-slate-900 p-1">
+                        {i === 0 ? (state.toText ?? '') : ''}
                       </td>
                       <td className="border-b border-slate-900 p-1">
                         {i === 0 ? (
@@ -152,7 +172,7 @@ export function ActionSlipPreviewPage() {
                                 'Rewrite / Redraft',
                               ].map((x) => (
                                 <div key={x} className="flex items-start gap-2">
-                                  <span className="mt-[2px] inline-block h-3 w-3 border border-slate-900" />
+                                  <CheckBox checked={state.actionRequested === x} />
                                   <span className="leading-tight">{x}</span>
                                 </div>
                               ))}
@@ -166,10 +186,13 @@ export function ActionSlipPreviewPage() {
                                 'Remarks',
                               ].map((x) => (
                                 <div key={x} className="flex items-start gap-2">
-                                  <span className="mt-[2px] inline-block h-3 w-3 border border-slate-900" />
+                                  <CheckBox checked={state.actionRequested === x} />
                                   <span className="leading-tight">{x}</span>
                                 </div>
                               ))}
+                            </div>
+                            <div className="col-span-2 mt-2 min-h-10 whitespace-pre-wrap border-t border-slate-900 pt-2">
+                              {state.remarksText ?? ''}
                             </div>
                           </div>
                         ) : (
