@@ -64,7 +64,7 @@ export function ActionSlipPage() {
               <div className="grid grid-cols-[110px_1fr] border-b border-slate-900">
                 <div className="flex items-center justify-center gap-2 border-r border-slate-900 p-2">
                   <img
-                    src="/logos/caap.png"
+                    src="/img/caap.png"
                     alt="CAAP"
                     className="h-10 w-10 object-contain"
                     onError={(e) => {
@@ -72,7 +72,7 @@ export function ActionSlipPage() {
                     }}
                   />
                   <img
-                    src="/logos/bagong-pilipinas.png"
+                    src="/img/bagong-pilipinas.png"
                     alt="Bagong Pilipinas"
                     className="h-10 w-10 object-contain"
                     onError={(e) => {

@@ -58,8 +58,8 @@ npm run dev
 
 To show the official logos in the Action Slip header, add these files:
 
-- `public/logos/caap.png`
-- `public/logos/bagong-pilipinas.png`
+- `public/img/caap.png`
+- `public/img/bagong-pilipinas.png`
 
 They will appear on:
 - Print preview: `/print/new`
