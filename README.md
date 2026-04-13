@@ -31,6 +31,9 @@ In Supabase SQL Editor, run:
 5. (optional) `supabase/profile_trigger.sql`
 6. `supabase/hardcopy_qr_upload.sql` (QR photo proof upload)
 
+If you created documents before enabling initial forwarding, also run:
+- `supabase/fix_creator_initial_holder.sql`
+
 Then create a Storage bucket named **`document-attachments`** (private recommended).
 
 #### Required manual step: seed profiles

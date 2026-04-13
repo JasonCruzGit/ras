@@ -91,6 +91,7 @@ export async function createDocument(input: CreateDocumentInput) {
       priority: input.priority,
       status: 'pending',
       created_by: uid,
+      current_holder_user_id: uid,
     })
     .select('*')
     .single()

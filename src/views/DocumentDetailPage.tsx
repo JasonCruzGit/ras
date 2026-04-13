@@ -36,7 +36,12 @@ export function DocumentDetailPage() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [qrLink, setQrLink] = useState<string | null>(null)
 
-  const canAct = !!(user?.id && q.data?.current_holder_user_id === user.id)
+  const canAct = !!(
+    user?.id &&
+    q.data &&
+    (q.data.current_holder_user_id === user.id ||
+      (q.data.current_holder_user_id === null && q.data.created_by === user.id))
+  )
 
   const peopleOptions = useMemo(() => {
     const list = profiles.data ?? []
