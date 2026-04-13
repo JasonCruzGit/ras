@@ -131,6 +131,25 @@ export function NewDocumentPage() {
           <button
             className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50"
             type="button"
+            onClick={() => {
+              nav('/documents/new/preview', {
+                state: {
+                  originatingOffice,
+                  referenceNumber,
+                  subject: subject.trim() || 'Untitled',
+                  dateOfDocument,
+                  dateTimeReceived: dateTimeReceived
+                    ? new Date(dateTimeReceived).toLocaleString()
+                    : '',
+                },
+              })
+            }}
+          >
+            Preview / Print
+          </button>
+          <button
+            className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50"
+            type="button"
             onClick={() => nav('/documents')}
           >
             Cancel

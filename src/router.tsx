@@ -11,6 +11,7 @@ import { RequireRole } from './auth/RequireRole'
 import { AdminDepartmentsPage } from './views/admin/AdminDepartmentsPage'
 import { AdminUsersPage } from './views/admin/AdminUsersPage'
 import { ActionSlipPage } from './views/ActionSlipPage'
+import { ActionSlipPreviewPage } from './views/ActionSlipPreviewPage'
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'documents', element: <DocumentsPage /> },
       { path: 'documents/new', element: <NewDocumentPage /> },
+      { path: 'documents/new/preview', element: <ActionSlipPreviewPage /> },
       { path: 'documents/:id', element: <DocumentDetailPage /> },
       { path: 'documents/:id/action-slip', element: <ActionSlipPage /> },
       { path: 'inbox', element: <InboxPage /> },
