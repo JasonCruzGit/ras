@@ -54,6 +54,17 @@ npm install
 npm run dev
 ```
 
+## Logos (print template)
+
+To show the official logos in the Action Slip header, add these files:
+
+- `public/logos/caap.png`
+- `public/logos/bagong-pilipinas.png`
+
+They will appear on:
+- Print preview: `/print/new`
+- Saved slip print: `/print/documents/:id`
+
 ## Vercel notes (React Router)
 
 This project uses client-side routing. For Vercel, `vercel.json` includes a rewrite so routes like

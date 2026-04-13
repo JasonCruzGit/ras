@@ -63,12 +63,22 @@ export function ActionSlipPage() {
               {/* Header */}
               <div className="grid grid-cols-[110px_1fr] border-b border-slate-900">
                 <div className="flex items-center justify-center gap-2 border-r border-slate-900 p-2">
-                  <div className="h-10 w-10 rounded-full border border-slate-900 text-center text-[10px] leading-10">
-                    CAAP
-                  </div>
-                  <div className="h-10 w-10 rounded-full border border-slate-900 text-center text-[10px] leading-10">
-                    LOGO
-                  </div>
+                  <img
+                    src="/logos/caap.png"
+                    alt="CAAP"
+                    className="h-10 w-10 object-contain"
+                    onError={(e) => {
+                      ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                    }}
+                  />
+                  <img
+                    src="/logos/bagong-pilipinas.png"
+                    alt="Bagong Pilipinas"
+                    className="h-10 w-10 object-contain"
+                    onError={(e) => {
+                      ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                    }}
+                  />
                 </div>
                 <div className="p-2 text-center text-xs">
                   <div>Republic of the Philippines</div>
