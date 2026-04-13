@@ -1,11 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getSessionByToken, uploadHardcopyPhoto } from '../api/hardcopyProof'
 
 export function HardcopyUploadPage() {
   const { token } = useParams()
   const [file, setFile] = useState<File | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const session = useQuery({
     queryKey: ['hardcopy-session', token],
@@ -23,6 +24,15 @@ export function HardcopyUploadPage() {
   })
 
   const title = useMemo(() => 'Upload hardcopy proof', [])
+
+  useEffect(() => {
+    if (!file) return
+    if (!session.data) return
+    if (upload.isPending || upload.isSuccess) return
+    // Auto-upload once a photo is selected (better UX on phones)
+    upload.mutate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, session.data])
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -48,25 +58,35 @@ export function HardcopyUploadPage() {
               Expires: {new Date(session.data.expires_at).toLocaleString()}
             </div>
 
-            <label className="block">
-              <div className="text-xs font-medium text-slate-700">Capture photo</div>
-              <input
-                className="mt-1 w-full text-sm"
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
+            {session.data.uploaded_at ? (
+              <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                This proof link has already been used. You can close this page.
+              </div>
+            ) : (
+              <>
+                <input
+                  ref={inputRef}
+                  className="hidden"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                />
 
-            <button
-              className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
-              disabled={upload.isPending || !file}
-              onClick={() => upload.mutate()}
-              type="button"
-            >
-              {upload.isPending ? 'Uploading…' : 'Upload'}
-            </button>
+                <button
+                  className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+                  disabled={upload.isPending}
+                  onClick={() => inputRef.current?.click()}
+                  type="button"
+                >
+                  {upload.isPending ? 'Uploading…' : file ? 'Retake / Choose another photo' : 'Take photo / Choose photo'}
+                </button>
+
+                <div className="text-xs text-slate-600">
+                  {file ? `Selected: ${file.name}` : 'After selecting a photo, it will upload automatically.'}
+                </div>
+              </>
+            )}
 
             {upload.isSuccess ? (
               <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
