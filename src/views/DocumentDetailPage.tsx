@@ -6,9 +6,11 @@ import { useAuth } from '../auth/AuthProvider'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { forwardDocument } from '../api/inbox'
 import { listDepartments, listProfiles } from '../api/directory'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createHardcopySession } from '../api/hardcopyProof'
 import QRCode from 'qrcode'
+import { createSignedAttachmentUrl, listHardcopyProofs } from '../api/attachments'
+import { supabase } from '../lib/supabase'
 
 export function DocumentDetailPage() {
   const { id } = useParams()
@@ -94,6 +96,44 @@ export function DocumentDetailPage() {
     },
     onError: (e) => setQrError((e as Error).message),
   })
+
+  const proofs = useQuery({
+    queryKey: ['hardcopy-proofs', id],
+    queryFn: () => listHardcopyProofs(id!),
+    enabled: !!id,
+  })
+
+  const proofUrls = useQuery({
+    queryKey: ['hardcopy-proofs-urls', id, proofs.data?.map((p) => p.id).join(',') ?? ''],
+    queryFn: async () => {
+      const items = proofs.data ?? []
+      const urls = await Promise.all(
+        items.map(async (p) => ({
+          id: p.id,
+          url: await createSignedAttachmentUrl({ bucket: p.storage_bucket, path: p.storage_path }),
+        })),
+      )
+      return Object.fromEntries(urls.map((u) => [u.id, u.url])) as Record<string, string>
+    },
+    enabled: !!id && !!proofs.data,
+  })
+
+  useEffect(() => {
+    if (!id) return
+    const ch = supabase
+      .channel(`attachments:${id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'document_attachments', filter: `document_id=eq.${id}` },
+        () => {
+          qc.invalidateQueries({ queryKey: ['hardcopy-proofs', id] })
+        },
+      )
+      .subscribe()
+    return () => {
+      supabase.removeChannel(ch)
+    }
+  }, [id, qc])
 
   return (
     <div className="space-y-4">
@@ -268,6 +308,52 @@ export function DocumentDetailPage() {
                 </form>
               )}
             </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="text-sm font-medium text-slate-900">Hardcopy proof uploads</div>
+            <div className="mt-1 text-sm text-slate-600">
+              Photos uploaded from QR links will appear here automatically.
+            </div>
+
+            {proofs.isLoading ? (
+              <div className="mt-3 text-sm text-slate-600">Loading…</div>
+            ) : proofs.isError ? (
+              <div className="mt-3 text-sm text-red-700">{(proofs.error as Error).message}</div>
+            ) : (proofs.data?.length ?? 0) === 0 ? (
+              <div className="mt-3 text-sm text-slate-600">No hardcopy proofs yet.</div>
+            ) : (
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {(proofs.data ?? []).map((p) => (
+                  <a
+                    key={p.id}
+                    href={proofUrls.data?.[p.id]}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group block"
+                    title={p.file_name}
+                  >
+                    <div className="aspect-square overflow-hidden rounded-md border border-slate-200 bg-slate-50">
+                      {proofUrls.data?.[p.id] ? (
+                        <img
+                          src={proofUrls.data[p.id]}
+                          alt={p.file_name}
+                          className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
+                          Loading…
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-1 truncate text-xs text-slate-600">
+                      {new Date(p.created_at).toLocaleString()}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white p-4">
