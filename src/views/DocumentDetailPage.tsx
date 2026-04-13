@@ -9,7 +9,7 @@ import { listDepartments, listProfiles } from '../api/directory'
 import { useEffect, useMemo, useState } from 'react'
 import { createHardcopySession } from '../api/hardcopyProof'
 import QRCode from 'qrcode'
-import { createSignedAttachmentUrl, listHardcopyProofs } from '../api/attachments'
+import { createSignedAttachmentUrl, listAttachments, listHardcopyProofs } from '../api/attachments'
 import { supabase } from '../lib/supabase'
 
 export function DocumentDetailPage() {
@@ -103,6 +103,12 @@ export function DocumentDetailPage() {
     enabled: !!id,
   })
 
+  const attachments = useQuery({
+    queryKey: ['attachments', id],
+    queryFn: () => listAttachments(id!),
+    enabled: !!id,
+  })
+
   const proofUrls = useQuery({
     queryKey: ['hardcopy-proofs-urls', id, proofs.data?.map((p) => p.id).join(',') ?? ''],
     queryFn: async () => {
@@ -127,6 +133,7 @@ export function DocumentDetailPage() {
         { event: '*', schema: 'public', table: 'document_attachments', filter: `document_id=eq.${id}` },
         () => {
           qc.invalidateQueries({ queryKey: ['hardcopy-proofs', id] })
+          qc.invalidateQueries({ queryKey: ['attachments', id] })
         },
       )
       .subscribe()
@@ -168,6 +175,14 @@ export function DocumentDetailPage() {
               <div className="text-sm font-medium text-slate-900">Document info</div>
               <dl className="mt-3 grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
                 <div>
+                  <dt className="text-xs text-slate-500">Originating office</dt>
+                  <dd className="text-slate-900">{q.data.originating_office}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Reference number</dt>
+                  <dd className="font-mono text-xs text-slate-900">{q.data.reference_number ?? '—'}</dd>
+                </div>
+                <div>
                   <dt className="text-xs text-slate-500">Date of document</dt>
                   <dd className="text-slate-900">{q.data.date_of_document ?? '—'}</dd>
                 </div>
@@ -178,6 +193,14 @@ export function DocumentDetailPage() {
                       ? new Date(q.data.date_time_received).toLocaleString()
                       : '—'}
                   </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Priority</dt>
+                  <dd className="text-slate-900">{q.data.priority}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-slate-500">Status</dt>
+                  <dd className="text-slate-900">{q.data.status}</dd>
                 </div>
                 <div className="md:col-span-2">
                   <dt className="text-xs text-slate-500">Description</dt>
@@ -353,6 +376,45 @@ export function DocumentDetailPage() {
                   </a>
                 ))}
               </div>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="text-sm font-medium text-slate-900">Files</div>
+            <div className="mt-1 text-sm text-slate-600">All attachments for this routing slip.</div>
+
+            {attachments.isLoading ? (
+              <div className="mt-3 text-sm text-slate-600">Loading…</div>
+            ) : attachments.isError ? (
+              <div className="mt-3 text-sm text-red-700">{(attachments.error as Error).message}</div>
+            ) : (attachments.data?.length ?? 0) === 0 ? (
+              <div className="mt-3 text-sm text-slate-600">No files uploaded.</div>
+            ) : (
+              <ul className="mt-3 divide-y divide-slate-100 rounded-md border border-slate-200">
+                {(attachments.data ?? []).map((a) => (
+                  <li key={a.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm text-slate-900">{a.file_name}</div>
+                      <div className="text-xs text-slate-500">
+                        {a.kind ?? 'attachment'} • {new Date(a.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                    <button
+                      className="shrink-0 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+                      type="button"
+                      onClick={async () => {
+                        const url = await createSignedAttachmentUrl({
+                          bucket: a.storage_bucket,
+                          path: a.storage_path,
+                        })
+                        window.open(url, '_blank', 'noreferrer')
+                      }}
+                    >
+                      Open
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
 

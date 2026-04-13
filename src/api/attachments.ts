@@ -14,6 +14,17 @@ export const AttachmentRow = z.object({
 
 export type AttachmentRow = z.infer<typeof AttachmentRow>
 
+export async function listAttachments(documentId: string) {
+  const { data, error } = await supabase
+    .from('document_attachments')
+    .select('id,document_id,file_name,mime_type,storage_bucket,storage_path,kind,created_at')
+    .eq('document_id', documentId)
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (error) throw error
+  return z.array(AttachmentRow).parse(data)
+}
+
 export async function listHardcopyProofs(documentId: string) {
   const { data, error } = await supabase
     .from('document_attachments')
