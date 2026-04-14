@@ -53,7 +53,17 @@ export function AdminUsersPage() {
               <tbody className="divide-y divide-slate-100">
                 {list.map((u) => (
                   <tr key={u.user_id}>
-                    <td className="px-4 py-2 text-xs text-slate-700">{u.email ?? '—'}</td>
+                    <td className="px-4 py-2">
+                      <input
+                        className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs"
+                        type="email"
+                        value={u.email ?? ''}
+                        onChange={(e) =>
+                          update.mutate({ user_id: u.user_id, email: e.target.value || null })
+                        }
+                        placeholder="login@example.com"
+                      />
+                    </td>
                     <td className="px-4 py-2">
                       <input
                         className="w-full rounded-md border border-slate-300 px-2 py-1 text-sm"

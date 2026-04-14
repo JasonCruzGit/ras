@@ -12,6 +12,7 @@ import QRCode from 'qrcode'
 import { createSignedAttachmentUrl, listAttachments, listHardcopyProofs } from '../api/attachments'
 import { supabase } from '../lib/supabase'
 import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegacy'
+import { profileSelectLabel } from '../lib/profileLabel'
 import { actionSlipFromCellChained, actionSlipToCell } from '../lib/actionSlipDisplay'
 
 export function DocumentDetailPage() {
@@ -55,7 +56,7 @@ export function DocumentDetailPage() {
     return list
       .map((p) => ({
         id: p.user_id,
-        label: `${p.email ?? p.display_name ?? p.user_id}${p.role === 'admin' ? ' (admin)' : ''}`,
+        label: profileSelectLabel(p),
       }))
       .sort((a, b) => a.label.localeCompare(b.label))
   }, [profiles.data])

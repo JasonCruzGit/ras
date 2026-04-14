@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { approveDocument, forwardDocument, listAssignedToMe, rejectDocument } from '../api/inbox'
 import { useState } from 'react'
 import { listDepartments, listProfiles } from '../api/directory'
+import { profileSelectLabel } from '../lib/profileLabel'
 
 export function InboxPage() {
   const qc = useQueryClient()
@@ -146,7 +147,7 @@ export function InboxPage() {
                     <option value="">(none)</option>
                     {(profiles.data ?? []).map((p) => (
                       <option key={p.user_id} value={p.user_id}>
-                        {p.email ?? p.display_name ?? p.user_id}
+                        {profileSelectLabel(p)}
                       </option>
                     ))}
                   </select>

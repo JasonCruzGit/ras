@@ -16,7 +16,7 @@ export async function listDepartments() {
 export const ProfileRow = z.object({
   user_id: z.string().uuid(),
   display_name: z.string().nullable(),
-  email: z.string().email().nullable(),
+  email: z.string().nullable(),
   role: z.enum(['admin', 'staff']),
   department_id: z.string().uuid().nullable(),
 })
@@ -26,7 +26,7 @@ export async function listProfiles() {
   const { data, error } = await supabase
     .from('profiles')
     .select('user_id,display_name,email,role,department_id')
-    .order('email')
+    .order('email', { ascending: true, nullsFirst: false })
     .limit(1000)
   if (error) throw error
   return z.array(ProfileRow).parse(data)
@@ -47,6 +47,7 @@ export async function updateProfile(args: {
   role?: 'admin' | 'staff'
   department_id?: string | null
   display_name?: string | null
+  email?: string | null
 }) {
   const { data, error } = await supabase
     .from('profiles')
@@ -54,6 +55,7 @@ export async function updateProfile(args: {
       role: args.role,
       department_id: args.department_id,
       display_name: args.display_name,
+      ...(args.email !== undefined ? { email: args.email || null } : {}),
     })
     .eq('user_id', args.user_id)
     .select('user_id,display_name,email,role,department_id')
