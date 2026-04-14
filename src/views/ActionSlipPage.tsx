@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { getDocument } from '../api/documents'
 import { getTimeline } from '../api/timeline'
+import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegacy'
 
 function displayPerson(name: string | null, dept: string | null) {
   return name ?? dept ?? '—'
@@ -27,6 +28,12 @@ export function ActionSlipPage() {
     queryFn: () => getTimeline(id!),
     enabled: !!id,
   })
+
+  const { routes: slipRoutes } = useDocumentRoutesWithLegacy(
+    doc.data,
+    timeline.data?.routes,
+    timeline.isSuccess,
+  )
 
   return (
     <div className="space-y-4">
@@ -164,7 +171,7 @@ export function ActionSlipPage() {
                   </thead>
                   <tbody>
                     {(() => {
-                      const routes = timeline.data?.routes ?? []
+                      const routes = slipRoutes
                       const totalRows = 14
                       const rows = Array.from({ length: totalRows }).map((_, i) => routes[i] ?? null)
 

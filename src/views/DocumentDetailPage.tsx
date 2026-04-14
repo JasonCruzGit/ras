@@ -11,6 +11,7 @@ import { createHardcopySession } from '../api/hardcopyProof'
 import QRCode from 'qrcode'
 import { createSignedAttachmentUrl, listAttachments, listHardcopyProofs } from '../api/attachments'
 import { supabase } from '../lib/supabase'
+import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegacy'
 
 export function DocumentDetailPage() {
   const { id } = useParams()
@@ -28,6 +29,12 @@ export function DocumentDetailPage() {
     queryFn: () => getTimeline(id!),
     enabled: !!id,
   })
+
+  const { routes: displayRoutes } = useDocumentRoutesWithLegacy(
+    q.data,
+    timeline.data?.routes,
+    timeline.isSuccess,
+  )
 
   const deps = useQuery({ queryKey: ['departments'], queryFn: listDepartments })
   const profiles = useQuery({ queryKey: ['profiles'], queryFn: listProfiles })
@@ -447,7 +454,7 @@ export function DocumentDetailPage() {
                     Routes
                   </div>
                   <ol className="mt-2 space-y-2">
-                    {(timeline.data?.routes ?? []).map((r) => (
+                    {displayRoutes.map((r) => (
                       <li key={r.id} className="rounded-md border border-slate-200 bg-slate-50 p-3">
                         <div className="text-sm text-slate-900">
                           <span className="font-medium">From:</span>{' '}
@@ -465,7 +472,7 @@ export function DocumentDetailPage() {
                         ) : null}
                       </li>
                     ))}
-                    {(timeline.data?.routes ?? []).length === 0 ? (
+                    {displayRoutes.length === 0 ? (
                       <li className="text-sm text-slate-600">No routing yet.</li>
                     ) : null}
                   </ol>
