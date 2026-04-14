@@ -2,27 +2,66 @@
 
 begin;
 
+-- Who may forward / approve / reject:
+-- - current user holder, or
+-- - member of current holder department (forward-to-dept leaves user id null), or
+-- - recipient on the current route (covers sync / edge cases).
+-- row_security off: reading documents inside SECURITY DEFINER must not hit RLS recursion or hidden rows.
 create or replace function public.assert_can_act_on_document(p_document_id uuid)
 returns void
 language plpgsql
+stable
 security definer
+set search_path = public
+set row_security to off
 as $$
 declare
-  v_is_admin boolean;
-  v_holder uuid;
+  v_uid uuid := auth.uid();
 begin
-  select public.is_admin() into v_is_admin;
-  if v_is_admin then
+  if public.is_admin() then
     return;
   end if;
 
-  select d.current_holder_user_id into v_holder
-  from public.documents d
-  where d.id = p_document_id;
-
-  if v_holder is null or v_holder <> auth.uid() then
-    raise exception 'Not allowed to act on this document';
+  if exists (
+    select 1
+    from public.documents d
+    where d.id = p_document_id
+      and d.current_holder_user_id = v_uid
+  ) then
+    return;
   end if;
+
+  if exists (
+    select 1
+    from public.documents d
+    join public.profiles p on p.user_id = v_uid
+    where d.id = p_document_id
+      and d.current_holder_department_id is not null
+      and p.department_id is not null
+      and d.current_holder_department_id = p.department_id
+  ) then
+    return;
+  end if;
+
+  if exists (
+    select 1
+    from public.document_routes r
+    join public.profiles p on p.user_id = v_uid
+    where r.document_id = p_document_id
+      and r.is_current = true
+      and (
+        r.to_user_id = v_uid
+        or (
+          r.to_department_id is not null
+          and p.department_id is not null
+          and r.to_department_id = p.department_id
+        )
+      )
+  ) then
+    return;
+  end if;
+
+  raise exception 'Not allowed to act on this document';
 end;
 $$;
 

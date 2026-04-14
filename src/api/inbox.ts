@@ -21,14 +21,33 @@ export async function listAssignedToMe() {
   const uid = u.data.user?.id
   if (!uid) throw new Error('Not authenticated')
 
-  const { data, error } = await supabase
-    .from('documents')
-    .select(
-      'id,title,originating_office,reference_number,priority,status,created_at,updated_at,current_holder_user_id',
-    )
-    .eq('current_holder_user_id', uid)
-    .order('updated_at', { ascending: false })
-    .limit(200)
+  const { data: prof, error: profErr } = await supabase
+    .from('profiles')
+    .select('department_id')
+    .eq('user_id', uid)
+    .maybeSingle()
+  if (profErr) throw profErr
+  const deptId = prof?.department_id ?? null
+
+  const sel =
+    'id,title,originating_office,reference_number,priority,status,created_at,updated_at,current_holder_user_id,current_holder_department_id'
+
+  const { data, error } = deptId
+    ? await supabase
+        .from('documents')
+        .select(sel)
+        .or(
+          `current_holder_user_id.eq.${uid},and(current_holder_user_id.is.null,current_holder_department_id.eq.${deptId})`,
+        )
+        .order('updated_at', { ascending: false })
+        .limit(200)
+    : await supabase
+        .from('documents')
+        .select(sel)
+        .eq('current_holder_user_id', uid)
+        .order('updated_at', { ascending: false })
+        .limit(200)
+
   if (error) throw error
   return z.array(AssignedDoc).parse(data)
 }
