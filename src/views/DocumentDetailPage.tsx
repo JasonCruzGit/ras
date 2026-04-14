@@ -12,6 +12,7 @@ import QRCode from 'qrcode'
 import { createSignedAttachmentUrl, listAttachments, listHardcopyProofs } from '../api/attachments'
 import { supabase } from '../lib/supabase'
 import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegacy'
+import { actionSlipFromCellChained, actionSlipToCell } from '../lib/actionSlipDisplay'
 
 export function DocumentDetailPage() {
   const { id } = useParams()
@@ -457,13 +458,13 @@ export function DocumentDetailPage() {
                     Routes
                   </div>
                   <ol className="mt-2 space-y-2">
-                    {displayRoutes.map((r) => (
+                    {displayRoutes.map((r, idx) => (
                       <li key={r.id} className="rounded-md border border-slate-200 bg-slate-50 p-3">
                         <div className="text-sm text-slate-900">
                           <span className="font-medium">From:</span>{' '}
-                          {r.from_display_name ?? r.from_department_name ?? r.from_email ?? '—'}{' '}
+                          {actionSlipFromCellChained(displayRoutes, idx, q.data)}{' '}
                           <span className="font-medium">To:</span>{' '}
-                          {r.to_display_name ?? r.to_department_name ?? r.to_email ?? '—'}
+                          {actionSlipToCell(r, idx, q.data)}
                         </div>
                         <div className="mt-1 text-xs text-slate-600">
                           Assigned: {new Date(r.assigned_at).toLocaleString()}

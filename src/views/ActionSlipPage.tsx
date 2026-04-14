@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { getDocument } from '../api/documents'
 import { getTimeline } from '../api/timeline'
 import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegacy'
-import { actionSlipFromCell, actionSlipRemarksText, actionSlipToCell } from '../lib/actionSlipDisplay'
+import { actionSlipFromCellChained, actionSlipRemarksText, actionSlipToCell } from '../lib/actionSlipDisplay'
 
 function CheckBox(props: { checked: boolean }) {
   return (
@@ -178,7 +178,7 @@ export function ActionSlipPage() {
                             {r ? new Date(r.assigned_at).toLocaleString() : ''}
                           </td>
                           <td className="border-r border-slate-900 border-b border-slate-900 p-1">
-                            {r ? actionSlipFromCell(r, i, doc.data) : ''}
+                            {r ? actionSlipFromCellChained(slipRoutes, i, doc.data) : ''}
                           </td>
                           <td className="border-r border-slate-900 border-b border-slate-900 p-1">
                             {r ? actionSlipToCell(r, i, doc.data) : ''}

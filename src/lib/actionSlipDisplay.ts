@@ -28,6 +28,28 @@ export function actionSlipFromCell(r: RouteRow, rowIndex: number, doc: DocumentR
   return '—'
 }
 
+/**
+ * Paper slip convention: from the second routing row onward, **FROM** is the **TO** of the
+ * previous row (the prior recipient is the sender of this step).
+ */
+export function actionSlipFromCellChained(
+  routes: RouteRow[],
+  rowIndex: number,
+  doc: DocumentRow,
+): string {
+  const r = routes[rowIndex]
+  if (!r) return ''
+
+  if (rowIndex > 0) {
+    const prev = routes[rowIndex - 1]
+    if (prev) {
+      return actionSlipToCell(prev, rowIndex - 1, doc)
+    }
+  }
+
+  return actionSlipFromCell(r, rowIndex, doc)
+}
+
 /** TO column: route text → joined names → originating office on first row as last resort. */
 export function actionSlipToCell(r: RouteRow, rowIndex: number, doc: DocumentRow): string {
   const direct = r.to_text?.trim()
