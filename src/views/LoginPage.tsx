@@ -79,8 +79,6 @@ export function LoginPage() {
       setLoading(false)
       return setError(signupErr?.message ?? 'Sign-up failed.')
     }
-    const uid = signupData.user.id
-
     // 2. Resolve / create department
     let deptId: string | null = null
     if (suDeptId !== '__new__') {
@@ -108,13 +106,11 @@ export function LoginPage() {
       }
     }
 
-    // 3. Upsert profile (profile_trigger may have already created a stub row)
-    const { error: profErr } = await supabase.from('profiles').upsert({
-      user_id: uid,
-      display_name: name,
-      email: suEmail,
-      role: 'staff',
-      department_id: deptId,
+    // 3. Upsert profile via SECURITY DEFINER function (bypasses RLS INSERT restriction)
+    const { error: profErr } = await supabase.rpc('upsert_own_profile', {
+      p_display_name: name,
+      p_email: suEmail,
+      p_department_id: deptId,
     })
     if (profErr) {
       setLoading(false)
