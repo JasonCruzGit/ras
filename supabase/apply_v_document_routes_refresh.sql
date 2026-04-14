@@ -3,7 +3,10 @@
 
 begin;
 
-create or replace view public.v_document_routes as
+-- Drop first — replacing a view whose old columns differ (e.g. former r.*) causes ERROR 42P16.
+drop view if exists public.v_document_routes cascade;
+
+create view public.v_document_routes as
 select
   r.id,
   r.document_id,

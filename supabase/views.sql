@@ -20,7 +20,9 @@ left join public.departments d on d.id = a.actor_department_id;
 
 -- List route columns explicitly so new columns (e.g. from_text) appear after migrations;
 -- `select r.*` in a view is expanded once at create time and does not pick up new columns.
-create or replace view public.v_document_routes as
+-- Must DROP first: CREATE OR REPLACE cannot change column order/names vs an old r.*-based view (42P16).
+drop view if exists public.v_document_routes cascade;
+create view public.v_document_routes as
 select
   r.id,
   r.document_id,
