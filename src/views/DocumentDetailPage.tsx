@@ -461,9 +461,9 @@ export function DocumentDetailPage() {
                       <li key={r.id} className="rounded-md border border-slate-200 bg-slate-50 p-3">
                         <div className="text-sm text-slate-900">
                           <span className="font-medium">From:</span>{' '}
-                          {r.from_display_name ?? r.from_department_name ?? '—'}{' '}
+                          {r.from_display_name ?? r.from_department_name ?? r.from_email ?? '—'}{' '}
                           <span className="font-medium">To:</span>{' '}
-                          {r.to_display_name ?? r.to_department_name ?? '—'}
+                          {r.to_display_name ?? r.to_department_name ?? r.to_email ?? '—'}
                         </div>
                         <div className="mt-1 text-xs text-slate-600">
                           Assigned: {new Date(r.assigned_at).toLocaleString()}

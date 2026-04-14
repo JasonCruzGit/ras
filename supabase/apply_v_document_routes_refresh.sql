@@ -22,7 +22,9 @@ select
   r.to_text,
   r.action_requested,
   fp.display_name as from_display_name,
+  fp.email as from_email,
   tp.display_name as to_display_name,
+  tp.email as to_email,
   fd.name as from_department_name,
   td.name as to_department_name
 from public.document_routes r

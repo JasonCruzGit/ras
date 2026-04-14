@@ -17,6 +17,8 @@ export const RouteRow = z.object({
   initial_instruction: z.string().nullable(),
   from_display_name: z.string().nullable(),
   to_display_name: z.string().nullable(),
+  from_email: z.string().nullable().optional(),
+  to_email: z.string().nullable().optional(),
   from_department_name: z.string().nullable(),
   to_department_name: z.string().nullable(),
 })

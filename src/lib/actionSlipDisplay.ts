@@ -1,10 +1,15 @@
 import type { DocumentRow } from '../api/documents'
 import type { RouteRow } from '../api/timeline'
 
-function personLine(name: string | null | undefined, dept: string | null | undefined): string {
+function personLine(
+  name: string | null | undefined,
+  dept: string | null | undefined,
+  email: string | null | undefined,
+): string {
   const n = name?.trim()
   const d = dept?.trim()
-  return n || d || ''
+  const e = email?.trim()
+  return n || d || e || ''
 }
 
 /**
@@ -14,7 +19,7 @@ function personLine(name: string | null | undefined, dept: string | null | undef
 export function actionSlipFromCell(r: RouteRow, rowIndex: number, doc: DocumentRow): string {
   const direct = r.from_text?.trim()
   if (direct) return direct
-  const joined = personLine(r.from_display_name, r.from_department_name)
+  const joined = personLine(r.from_display_name, r.from_department_name, r.from_email)
   if (joined) return joined
   if (rowIndex === 0) {
     const office = doc.originating_office?.trim()
@@ -27,7 +32,7 @@ export function actionSlipFromCell(r: RouteRow, rowIndex: number, doc: DocumentR
 export function actionSlipToCell(r: RouteRow, rowIndex: number, doc: DocumentRow): string {
   const direct = r.to_text?.trim()
   if (direct) return direct
-  const joined = personLine(r.to_display_name, r.to_department_name)
+  const joined = personLine(r.to_display_name, r.to_department_name, r.to_email)
   if (joined) return joined
   if (rowIndex === 0) {
     const office = doc.originating_office?.trim()
