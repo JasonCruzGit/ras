@@ -18,12 +18,15 @@ $$;
 
 -- Read documents.created_by / current_holder without joining document_routes (avoids RLS recursion).
 -- Lets creators and holders see the full routing history for print/timeline even after forwards.
+-- SECURITY DEFINER alone still applies RLS to documents for the invoker — must disable row_security
+-- inside the function or inserts/selects recurse: documents policy → document_routes → this → documents…
 create or replace function public.user_is_creator_or_holder_of_document(p_document_id uuid)
 returns boolean
 language sql
 stable
 security definer
 set search_path = public
+set row_security to off
 as $$
   select exists (
     select 1
@@ -37,6 +40,25 @@ as $$
 $$;
 
 grant execute on function public.user_is_creator_or_holder_of_document(uuid) to authenticated;
+
+-- Used only by routes INSERT policy — same row_security off so WITH CHECK does not recurse via documents RLS.
+create or replace function public.user_is_document_creator(p_document_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+set row_security to off
+as $$
+  select exists (
+    select 1
+    from public.documents d
+    where d.id = p_document_id
+      and d.created_by = auth.uid()
+  );
+$$;
+
+grant execute on function public.user_is_document_creator(uuid) to authenticated;
 
 -- Enable RLS
 alter table public.departments enable row level security;
@@ -178,10 +200,7 @@ create policy routes_insert_creator_or_admin on public.document_routes
 for insert to authenticated
 with check (
   public.is_admin()
-  or exists (
-    select 1 from public.documents d
-    where d.id = document_routes.document_id and d.created_by = auth.uid()
-  )
+  or public.user_is_document_creator(document_routes.document_id)
 );
 
 -- Actions: participants can insert their own actions; participants/creator/admin can read
