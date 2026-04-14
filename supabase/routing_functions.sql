@@ -2,11 +2,9 @@
 
 begin;
 
--- Who may forward / approve / reject:
--- - current user holder, or
--- - member of current holder department (forward-to-dept leaves user id null), or
--- - recipient on the current route (covers sync / edge cases).
--- row_security off: reading documents inside SECURITY DEFINER must not hit RLS recursion or hidden rows.
+-- Who may forward / approve / reject: any signed-in user, for an existing document.
+-- (Org requested open forwarding; RLS still limits who can see rows in the app.)
+-- row_security off: avoid hidden document rows inside SECURITY DEFINER.
 create or replace function public.assert_can_act_on_document(p_document_id uuid)
 returns void
 language plpgsql
@@ -15,53 +13,16 @@ security definer
 set search_path = public
 set row_security to off
 as $$
-declare
-  v_uid uuid := auth.uid();
 begin
-  if public.is_admin() then
-    return;
+  if auth.uid() is null then
+    raise exception 'Not allowed to act on this document';
   end if;
 
-  if exists (
-    select 1
-    from public.documents d
-    where d.id = p_document_id
-      and d.current_holder_user_id = v_uid
-  ) then
-    return;
+  if not exists (select 1 from public.documents d where d.id = p_document_id) then
+    raise exception 'Not allowed to act on this document';
   end if;
 
-  if exists (
-    select 1
-    from public.documents d
-    join public.profiles p on p.user_id = v_uid
-    where d.id = p_document_id
-      and d.current_holder_department_id is not null
-      and p.department_id is not null
-      and d.current_holder_department_id = p.department_id
-  ) then
-    return;
-  end if;
-
-  if exists (
-    select 1
-    from public.document_routes r
-    join public.profiles p on p.user_id = v_uid
-    where r.document_id = p_document_id
-      and r.is_current = true
-      and (
-        r.to_user_id = v_uid
-        or (
-          r.to_department_id is not null
-          and p.department_id is not null
-          and r.to_department_id = p.department_id
-        )
-      )
-  ) then
-    return;
-  end if;
-
-  raise exception 'Not allowed to act on this document';
+  return;
 end;
 $$;
 

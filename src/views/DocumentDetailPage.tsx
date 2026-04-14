@@ -16,7 +16,7 @@ import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegac
 export function DocumentDetailPage() {
   const { id } = useParams()
   const qc = useQueryClient()
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
 
   const q = useQuery({
     queryKey: ['documents', id],
@@ -46,32 +46,8 @@ export function DocumentDetailPage() {
   const [qrLink, setQrLink] = useState<string | null>(null)
   const [qrError, setQrError] = useState<string | null>(null)
 
-  const isCurrentRouteRecipient = useMemo(() => {
-    if (!user?.id || !timeline.isSuccess) return false
-    const r = (timeline.data?.routes ?? []).find((x) => x.is_current)
-    if (!r) return false
-    if (r.to_user_id === user.id) return true
-    if (
-      r.to_department_id &&
-      profile?.department_id &&
-      r.to_department_id === profile.department_id
-    )
-      return true
-    return false
-  }, [user?.id, profile?.department_id, timeline.data?.routes, timeline.isSuccess])
-
-  const canAct = !!(
-    user?.id &&
-    q.data &&
-    (q.data.current_holder_user_id === user.id ||
-      (q.data.current_holder_department_id &&
-        profile?.department_id &&
-        q.data.current_holder_department_id === profile.department_id) ||
-      isCurrentRouteRecipient ||
-      (q.data.current_holder_user_id === null &&
-        !q.data.current_holder_department_id &&
-        q.data.created_by === user.id))
-  )
+  // Any signed-in user who can open this page may forward (matches open assert_can_act_on_document).
+  const canAct = !!(user?.id && q.data)
 
   const peopleOptions = useMemo(() => {
     const list = profiles.data ?? []
