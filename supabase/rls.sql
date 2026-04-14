@@ -16,6 +16,28 @@ as $$
   );
 $$;
 
+-- Read documents.created_by / current_holder without joining document_routes (avoids RLS recursion).
+-- Lets creators and holders see the full routing history for print/timeline even after forwards.
+create or replace function public.user_is_creator_or_holder_of_document(p_document_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.documents d
+    where d.id = p_document_id
+      and (
+        d.created_by = auth.uid()
+        or d.current_holder_user_id = auth.uid()
+      )
+  );
+$$;
+
+grant execute on function public.user_is_creator_or_holder_of_document(uuid) to authenticated;
+
 -- Enable RLS
 alter table public.departments enable row level security;
 alter table public.profiles enable row level security;
@@ -134,9 +156,10 @@ drop policy if exists routes_read_via_document on public.document_routes;
 create policy routes_read_via_document on public.document_routes
 for select to authenticated
 using (
-  -- IMPORTANT: do not reference `documents` here, otherwise `documents` policies that
-  -- reference `document_routes` can recurse and cause 42P17 infinite recursion.
+  -- IMPORTANT: do not reference `documents` directly here (recursion with documents policy).
+  -- Use security definer helper above for creator/holder visibility.
   public.is_admin()
+  or public.user_is_creator_or_holder_of_document(document_routes.document_id)
   or document_routes.to_user_id = auth.uid()
   or document_routes.from_user_id = auth.uid()
   or exists (

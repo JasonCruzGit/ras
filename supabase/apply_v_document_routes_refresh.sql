@@ -1,25 +1,8 @@
--- Convenience views for UI (timeline / action slip)
+-- Run after route_text_fields.sql (columns from_text, to_text, action_requested exist).
+-- Recreates the view so PostgREST returns those columns for timeline / print preview.
 
 begin;
 
-create or replace view public.v_document_actions as
-select
-  a.id,
-  a.document_id,
-  a.route_id,
-  a.actor_user_id,
-  p.display_name as actor_display_name,
-  p.role as actor_role,
-  d.name as actor_department_name,
-  a.action,
-  a.remarks,
-  a.created_at
-from public.document_actions a
-left join public.profiles p on p.user_id = a.actor_user_id
-left join public.departments d on d.id = a.actor_department_id;
-
--- List route columns explicitly so new columns (e.g. from_text) appear after migrations;
--- `select r.*` in a view is expanded once at create time and does not pick up new columns.
 create or replace view public.v_document_routes as
 select
   r.id,
@@ -46,4 +29,3 @@ left join public.departments fd on fd.id = r.from_department_id
 left join public.departments td on td.id = r.to_department_id;
 
 commit;
-

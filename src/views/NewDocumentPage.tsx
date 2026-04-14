@@ -33,6 +33,10 @@ export function NewDocumentPage() {
 
   const create = useMutation({
     mutationFn: async () => {
+      const userRes = await supabase.auth.getUser()
+      const uid = userRes.data.user?.id
+      if (!uid) throw new Error('Not authenticated')
+
       const doc = await createDocument({
         title: subject.trim() || 'Untitled',
         originating_office: originatingOffice.trim(),
@@ -42,22 +46,18 @@ export function NewDocumentPage() {
         priority: priority.toLowerCase() as 'low' | 'medium' | 'high' | 'urgent',
       })
 
-      // Create an initial routing row so the saved print preview has values
-      const userRes = await supabase.auth.getUser()
-      const uid = userRes.data.user?.id
-      if (uid) {
-        const { error } = await supabase.from('document_routes').insert({
-          document_id: doc.id,
-          from_user_id: uid,
-          to_user_id: uid,
-          is_current: true,
-          from_text: fromText || null,
-          to_text: toText || null,
-          action_requested: actionRequested || null,
-          initial_instruction: remarksText || null,
-        })
-        if (error) throw error
-      }
+      // Initial routing row for print/timeline (must not be skipped — same session as create)
+      const { error } = await supabase.from('document_routes').insert({
+        document_id: doc.id,
+        from_user_id: uid,
+        to_user_id: uid,
+        is_current: true,
+        from_text: fromText.trim() || null,
+        to_text: toText.trim() || null,
+        action_requested: actionRequested || null,
+        initial_instruction: remarksText.trim() || null,
+      })
+      if (error) throw error
       return doc
     },
     onSuccess: async (doc) => {

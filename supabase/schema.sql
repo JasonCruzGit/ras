@@ -95,7 +95,12 @@ create table if not exists public.document_routes (
   is_current boolean not null default true,
 
   -- For quick reads; full narrative goes into actions. Mirrors the "REMARKS/INSTRUCTION..." column.
-  initial_instruction text
+  initial_instruction text,
+
+  -- Printable slip / initial step (also in route_text_fields.sql for existing DBs)
+  from_text text,
+  to_text text,
+  action_requested text
 );
 
 create index if not exists document_routes_document_id_idx on public.document_routes(document_id);
