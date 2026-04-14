@@ -351,7 +351,8 @@ export function DocumentDetailPage() {
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <div className="text-sm font-medium text-slate-900">Hardcopy proof uploads</div>
             <div className="mt-1 text-sm text-slate-600">
-              Photos uploaded from QR links will appear here automatically.
+              Photos from QR upload appear here. Use <span className="font-medium text-slate-800">Open preview</span>{' '}
+              to view the full file in a new tab.
             </div>
 
             {proofs.isLoading ? (
@@ -362,34 +363,40 @@ export function DocumentDetailPage() {
               <div className="mt-3 text-sm text-slate-600">No hardcopy proofs yet.</div>
             ) : (
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {(proofs.data ?? []).map((p) => (
-                  <a
-                    key={p.id}
-                    href={proofUrls.data?.[p.id]}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group block"
-                    title={p.file_name}
-                  >
-                    <div className="aspect-square overflow-hidden rounded-md border border-slate-200 bg-slate-50">
-                      {proofUrls.data?.[p.id] ? (
-                        <img
-                          src={proofUrls.data[p.id]}
-                          alt={p.file_name}
-                          className="h-full w-full object-cover transition group-hover:scale-[1.02]"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
-                          Loading…
-                        </div>
-                      )}
+                {(proofs.data ?? []).map((p) => {
+                  const url = proofUrls.data?.[p.id]
+                  return (
+                    <div key={p.id} className="flex flex-col" title={p.file_name}>
+                      <div className="aspect-square overflow-hidden rounded-md border border-slate-200 bg-slate-50">
+                        {url ? (
+                          <img
+                            src={url}
+                            alt={p.file_name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
+                            Loading…
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-1 truncate text-xs text-slate-600">
+                        {new Date(p.created_at).toLocaleString()}
+                      </div>
+                      <button
+                        type="button"
+                        disabled={!url}
+                        className="mt-2 w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => {
+                          if (url) window.open(url, '_blank', 'noreferrer')
+                        }}
+                      >
+                        Open preview
+                      </button>
                     </div>
-                    <div className="mt-1 truncate text-xs text-slate-600">
-                      {new Date(p.created_at).toLocaleString()}
-                    </div>
-                  </a>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
