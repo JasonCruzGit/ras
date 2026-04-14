@@ -3,10 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { getDocument } from '../api/documents'
 import { getTimeline } from '../api/timeline'
 import { useDocumentRoutesWithLegacy } from '../hooks/useDocumentRoutesWithLegacy'
-
-function displayPerson(name: string | null, dept: string | null) {
-  return name ?? dept ?? '—'
-}
+import { actionSlipFromCell, actionSlipRemarksText, actionSlipToCell } from '../lib/actionSlipDisplay'
 
 function CheckBox(props: { checked: boolean }) {
   return (
@@ -181,10 +178,10 @@ export function ActionSlipPage() {
                             {r ? new Date(r.assigned_at).toLocaleString() : ''}
                           </td>
                           <td className="border-r border-slate-900 border-b border-slate-900 p-1">
-                            {r ? (r.from_text ?? displayPerson(r.from_display_name, r.from_department_name)) : ''}
+                            {r ? actionSlipFromCell(r, i, doc.data) : ''}
                           </td>
                           <td className="border-r border-slate-900 border-b border-slate-900 p-1">
-                            {r ? (r.to_text ?? displayPerson(r.to_display_name, r.to_department_name)) : ''}
+                            {r ? actionSlipToCell(r, i, doc.data) : ''}
                           </td>
                           <td className="border-b border-slate-900 p-1">
                             {i === 0 ? (
@@ -218,11 +215,13 @@ export function ActionSlipPage() {
                                   ))}
                                 </div>
                                 <div className="col-span-2 mt-2 min-h-8 whitespace-pre-wrap border-t border-slate-900 pt-2">
-                                  {r?.initial_instruction ?? ''}
+                                  {actionSlipRemarksText(r, i, doc.data)}
                                 </div>
                               </div>
                             ) : (
-                              <div className="min-h-8 whitespace-pre-wrap">{r?.initial_instruction ?? ''}</div>
+                              <div className="min-h-8 whitespace-pre-wrap">
+                                {actionSlipRemarksText(r, i, doc.data)}
+                              </div>
                             )}
                           </td>
                         </tr>

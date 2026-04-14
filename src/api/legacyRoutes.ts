@@ -21,6 +21,10 @@ export function withLegacyRouteFallback(
     return p?.display_name?.trim() || p?.email?.trim() || null
   }
   const toUid = doc.current_holder_user_id ?? doc.created_by
+  const fromLabel = label(doc.created_by)
+  const toLabel = label(toUid)
+  const office = doc.originating_office?.trim() || null
+  // Persist printable lines so the slip matches header/office data when profiles lack name/email.
   const row: RouteRow = {
     id: LEGACY_SYNTHETIC_ROUTE_ID,
     document_id: doc.id,
@@ -28,15 +32,15 @@ export function withLegacyRouteFallback(
     from_department_id: null,
     to_user_id: toUid,
     to_department_id: null,
-    from_text: null,
-    to_text: null,
+    from_text: fromLabel ?? office,
+    to_text: toLabel ?? office,
     action_requested: null,
     assigned_at: doc.date_time_received ?? doc.created_at,
     completed_at: null,
     is_current: true,
     initial_instruction: doc.description,
-    from_display_name: label(doc.created_by),
-    to_display_name: label(toUid),
+    from_display_name: fromLabel,
+    to_display_name: toLabel,
     from_department_name: null,
     to_department_name: null,
   }
